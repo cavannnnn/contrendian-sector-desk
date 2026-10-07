@@ -1,0 +1,15 @@
+pandas>=2.2
+numpy
+scipy
+yfinance>=0.2.50
+requests
+openpyxl
+pyarrow
+duckdb
+matplotlib
+feedparser
+pydantic>=2
+anthropic>=1.0
+tabulate
+pytrends
+lxml

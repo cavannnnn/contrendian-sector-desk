@@ -1,0 +1,597 @@
+<title>Contrendian Sector Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: a market terminal in deep navy and black. Black command bar, navy tape, function keys and
+   panel headers; near-black navy panels. Deliberately single-theme (dark). */
+:root{
+  color-scheme:dark;
+  --bg:#02060d; --panel:#07101e; --chrome:#000308; --chrome2:#0c2350; --on-chrome:#ffffff; --on-chrome2:#8da4cb;
+  --line:#142239; --line2:#203559; --grid:#0e1a2d; --zebra:#0c182b; --sel:#122a52; --soft:#0a1629; --mid:#0c1525;
+  --amber:#82b4ff; --amber-d:#2b4675; --key:#8ec2ff; --flag:#ffaa3d;
+  --ink:#e4ecf7; --ink2:#99abc6; --ink3:#5f7190;
+  --up:#2ccf88; --dn:#ff5a5a; --up-d:#2ccf88; --dn-d:#ff6b6b; --blue:#3b8bff;
+  --c1:#3b8bff; --c2:#ff9f2e; --c3:#2ccf88; --c4:#7a89a3;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  --cond:"IBM Plex Sans Condensed","Arial Narrow",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:12.5px/1.45 var(--mono);margin:0;font-variant-numeric:tabular-nums}
+a{color:var(--blue)}
+:focus-visible{outline:1px solid var(--key);outline-offset:1px}
+.up{color:var(--up)} .dn{color:var(--dn)} .am{color:var(--amber)} .mut{color:var(--ink2)} .dim{color:var(--ink3)}
+svg.i{width:13px;height:13px;flex:none;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+/* command bar */
+.top{display:flex;align-items:stretch;background:var(--chrome);color:var(--on-chrome);padding-inline:0}
+.logo{background:var(--blue);color:#fff;font:700 13px/1 var(--cond);letter-spacing:.06em;padding:9px 12px;display:flex;align-items:center;gap:7px;white-space:nowrap}
+.logo svg.i{stroke:#fff;width:15px;height:15px}
+.cmd{flex:1;display:flex;align-items:center;gap:10px;padding:0 12px;min-width:0;overflow:hidden;white-space:nowrap}
+.cmd .in{color:#fff;font-weight:600}
+.cmd .go{background:var(--blue);color:#fff;font-weight:600;padding:2px 6px;border-radius:2px}
+.cmd .crumb{color:var(--on-chrome2);overflow:hidden;text-overflow:ellipsis}
+.stat{display:flex;align-items:center;gap:14px;padding:0 12px;color:var(--on-chrome2);white-space:nowrap}
+.stat b{color:#fff;font-weight:500}
+.stat .am{color:var(--flag)}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--up-d);display:inline-block;margin-right:5px;box-shadow:0 0 6px var(--up-d)}
+
+/* tape */
+.tape{overflow:hidden;background:#061430;color:#fff;white-space:nowrap;border-top:1px solid #10264d;border-bottom:1px solid #10264d}
+.tape .run{display:inline-flex;gap:26px;padding:6px 0;animation:tape 70s linear infinite;padding-left:12px}
+.tape:hover .run{animation-play-state:paused}
+.q{display:inline-flex;gap:7px}
+.q .l{color:#8fb4f0} .q .v{color:#fff}
+.tape .up{color:var(--up-d)} .tape .dn{color:var(--dn-d)}
+@keyframes tape{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* function keys */
+.fk{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--chrome);border-bottom:1px solid #10264d;display:flex;gap:2px;padding:4px 6px;overflow-x:auto;scrollbar-width:none}
+.fk a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:#dfe8f7;background:#0a1a38;border:1px solid #1a3566;padding:4px 8px;font:600 11px/1 var(--cond);letter-spacing:.05em;white-space:nowrap}
+.fk a span{color:var(--chrome);background:#fff;padding:2px 4px;font:600 10px/1 var(--mono)}
+.fk a:hover,.fk a.on{border-color:var(--blue);background:#12306a;color:#fff}
+
+/* launchpad */
+.pad{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:6px;padding:6px;padding-inline:max(6px,env(safe-area-inset-left,0px))}
+.p{background:var(--panel);border:1px solid var(--line);box-shadow:0 0 0 1px rgba(0,0,0,.4);min-width:0;display:flex;flex-direction:column;scroll-margin-top:40px}
+.s3{grid-column:span 3}.s4{grid-column:span 4}.s5{grid-column:span 5}.s6{grid-column:span 6}.s7{grid-column:span 7}.s8{grid-column:span 8}.s12{grid-column:span 12}
+.ph{display:flex;align-items:center;gap:7px;background:var(--chrome2);padding:5px 8px;color:#fff;font:600 11.5px/1.2 var(--cond);letter-spacing:.06em;text-transform:uppercase;white-space:nowrap}
+.ph .code{background:#fff;color:var(--chrome2);padding:1px 5px;font:600 10.5px/1.3 var(--mono)}
+.ph .t{overflow:hidden;text-overflow:ellipsis}
+.ph .r{margin-left:auto;color:var(--on-chrome2);font:400 10.5px/1 var(--mono);letter-spacing:0;text-transform:none}
+.pb{padding:8px;min-width:0;flex:1}
+.pb.flush{padding:0}
+.scroll{overflow-x:auto}
+.lbl{font:500 10.5px/1.2 var(--cond);letter-spacing:.07em;text-transform:uppercase;color:var(--ink3)}
+
+table{border-collapse:collapse;width:100%}
+th{font:500 10px/1.2 var(--cond);letter-spacing:.07em;text-transform:uppercase;color:var(--amber);text-align:right;padding:4px 6px;border-bottom:1px solid var(--line2);white-space:nowrap;background:var(--soft)}
+th:first-child,th.l,td.l{text-align:left}
+td{padding:3px 6px;border-bottom:1px solid var(--grid);text-align:right;white-space:nowrap}
+tbody tr:hover td{background:var(--zebra)}
+td.wrap{white-space:normal;text-align:left;min-width:180px}
+.tk{color:var(--key);font-weight:600}
+.call{font:600 10px/1 var(--mono);padding:2px 5px;display:inline-block;letter-spacing:.04em}
+.call.LONG{background:var(--up);color:#fff}.call.SHORT{background:var(--dn);color:#fff}
+.hc{text-align:center!important;font-weight:500}
+
+/* book */
+.legs{display:grid;grid-template-columns:1fr;gap:8px}
+.leg .hd{display:flex;justify-content:space-between;font:600 11px/1 var(--cond);letter-spacing:.06em;padding-bottom:4px;border-bottom:1px solid var(--line)}
+.row3{display:grid;grid-template-columns:3.6rem minmax(0,1fr) 6.5rem 3.4rem;gap:8px;align-items:center;padding:4px 0;border-bottom:1px dotted var(--line)}
+.zbar{height:8px;background:var(--mid);position:relative}
+.zbar i{position:absolute;top:0;bottom:0}
+.big{font:600 20px/1.1 var(--mono)}
+.kv{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px}
+.kv div:nth-child(odd){color:var(--ink2)}
+
+/* sliders */
+.sl{display:grid;grid-template-columns:6.5rem 1fr 3rem;gap:8px;align-items:center;margin-bottom:6px}
+.sl label{color:var(--ink2)} .sl output{text-align:right;color:var(--key)}
+input[type=range]{width:100%;accent-color:var(--blue);height:14px}
+button{font:600 10.5px/1 var(--cond);letter-spacing:.06em;text-transform:uppercase;color:var(--ink);background:var(--soft);border:1px solid var(--line2);padding:5px 8px;cursor:pointer}
+button:hover{border-color:var(--blue);color:var(--blue)}
+button[aria-pressed="false"]{opacity:.45}
+.msg{border-left:2px solid var(--blue);padding:4px 8px;color:var(--ink2);background:var(--soft);margin-top:6px}
+
+.heat tr{cursor:pointer}
+.heat tr.sel td{background:var(--sel)}
+.heat tr.sel td.l{color:var(--amber)}
+.chg{font:500 9.5px/1 var(--mono);color:var(--flag);margin-left:4px}
+
+.grid9{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line)}
+.mini{background:var(--panel);padding:6px 8px;min-width:0}
+.mini .h{display:flex;justify-content:space-between;gap:6px}
+svg text{fill:var(--ink3);font:9.5px var(--mono)}
+
+.strip{display:grid;gap:2px}
+.strip .yr{display:grid;grid-template-columns:2.6rem repeat(12,minmax(0,1fr));gap:2px;align-items:center}
+.strip .yr span{height:8px}
+.strip .yr b{font-weight:400;color:var(--ink3)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:6px;color:var(--ink2)}
+.legend i{display:inline-block;width:10px;height:10px;margin-right:5px;vertical-align:-1px}
+
+.news{display:grid}
+.ni{display:grid;grid-template-columns:3.2rem minmax(0,1fr);gap:8px;padding:6px 0;border-bottom:1px solid var(--grid)}
+.ni .tag{font:600 10px/1.2 var(--mono);color:#fff;background:var(--chrome2);padding:2px 3px;text-align:center;align-self:start}
+.ni .hl{color:var(--ink);font-weight:500}
+.ni .fx{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;margin-top:3px;color:var(--ink2)}
+.ni .fx b{color:var(--amber);font-weight:500}
+.sent{display:grid;grid-template-columns:3rem 1.2rem minmax(0,1fr);gap:6px;padding:4px 0;border-bottom:1px dotted var(--line);align-items:start}
+.flag{display:grid;grid-template-columns:14px minmax(0,1fr);gap:6px;padding:4px 0;color:var(--ink2)}
+.flag svg{color:var(--flag);margin-top:2px}
+
+.flow{display:grid;gap:6px}
+.fr{display:grid;grid-template-columns:minmax(0,.9fr) 14px minmax(0,1.1fr) 14px minmax(0,1.3fr);gap:6px;align-items:stretch}
+.fr .ar{display:grid;place-items:center;color:var(--blue)}
+.nd{border:1px solid var(--line2);padding:6px 8px;display:grid;gap:4px;align-content:center;min-width:0}
+.nd.src{border-color:var(--chrome2);color:#fff;background:var(--chrome2)}
+
+.bars{display:grid;gap:1px}
+.bar{display:grid;grid-template-columns:minmax(0,13rem) minmax(0,1fr) 3.2rem;gap:8px;align-items:center;padding:2px 0}
+.bar .n{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .n small{color:var(--ink3);margin-left:6px}
+.trk{position:relative;height:10px;background:linear-gradient(var(--line2),var(--line2)) center/1px 100% no-repeat}
+.trk span{position:absolute;top:1px;bottom:1px}
+.bar .v{text-align:right}
+
+.chart{position:relative}
+#tip{position:fixed;z-index:60;pointer-events:none;background:#0b1d3d;border:1px solid var(--blue);color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.5);font:11.5px/1.45 var(--mono);padding:6px 8px;max-width:300px;opacity:0}
+#tip.on{opacity:1}
+.rng{position:relative;height:6px;background:var(--mid);border:1px solid var(--line);min-width:70px}
+.rng i{position:absolute;top:-3px;width:3px;height:10px;background:var(--key)}
+.cal{display:grid;grid-template-columns:4.6rem minmax(0,1fr) 2.8rem;gap:8px;padding:5px 0;border-bottom:1px dotted var(--line)}
+.cal .d{color:var(--key)}
+.docs{display:grid;gap:8px}
+.docs h4{margin:0;font:600 11px/1.2 var(--cond);letter-spacing:.06em;color:var(--amber);text-transform:uppercase}
+.docs p{margin:0;color:var(--ink2)}
+ol.q{margin:0;padding-left:20px;display:grid;gap:5px;color:var(--ink2)}
+footer{background:var(--chrome);color:var(--on-chrome2)!important;padding:10px 12px 30px;color:var(--ink3)}
+
+@media (max-width:1100px){.s3,.s4,.s5{grid-column:span 6}.s7,.s8{grid-column:span 12}.s6{grid-column:span 12}}
+@media (max-width:760px){
+  .pad{grid-template-columns:minmax(0,1fr)} .p{grid-column:1 / -1!important}
+  .stat{display:none} .grid9{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .fr{grid-template-columns:minmax(0,1fr)} .fr .ar{transform:rotate(90deg)}
+  .ni .fx{grid-template-columns:minmax(0,1fr)}
+  .bar{grid-template-columns:minmax(0,1fr) 3rem}.bar .trk{grid-column:1/-1;grid-row:2}
+}
+@media (prefers-reduced-motion:reduce){.tape .run{animation:none}.tape{overflow-x:auto}}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-logo" viewBox="0 0 16 16"><path d="M2 13h12M3 11l3-4 3 2 4-6"/></symbol>
+  <symbol id="i-book" viewBox="0 0 16 16"><rect x="2" y="5" width="12" height="8"/><path d="M6 5V3h4v2M2 9h12"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 16 16"><path d="M2.5 11a5.5 5.5 0 1 1 11 0"/><path d="M8 11l3-4"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 16 16"><rect x="2" y="3" width="12" height="11"/><path d="M2 6.5h12M5 1.5v3M11 1.5v3"/></symbol>
+  <symbol id="i-table" viewBox="0 0 16 16"><rect x="2" y="2.5" width="12" height="11"/><path d="M2 6h12M2 9.5h12M6 2.5v11"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 16 16"><rect x="2" y="2" width="5" height="5"/><rect x="9" y="2" width="5" height="5"/><rect x="2" y="9" width="5" height="5"/><rect x="9" y="9" width="5" height="5"/></symbol>
+  <symbol id="i-info" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 7.5V11M8 5h.01"/></symbol>
+  <symbol id="i-list" viewBox="0 0 16 16"><path d="M5 4h9M5 8h9M5 12h9M2 4h.01M2 8h.01M2 12h.01"/></symbol>
+  <symbol id="i-wave" viewBox="0 0 16 16"><path d="M1 9l3-4 3 6 3-8 3 6 2-2"/></symbol>
+  <symbol id="i-curve" viewBox="0 0 16 16"><path d="M2 13c3-1 4-6 6-7s4-1 6-2M2 2v11h12"/></symbol>
+  <symbol id="i-time" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M8 4.5V8l2.5 1.5"/></symbol>
+  <symbol id="i-news" viewBox="0 0 16 16"><rect x="2" y="3" width="10" height="10"/><path d="M12 6h2v6a1 1 0 0 1-2 0M4.5 6h5M4.5 8.5h5M4.5 11h3"/></symbol>
+  <symbol id="i-flag" viewBox="0 0 16 16"><path d="M3 14V2.5h8l-1.5 3L11 8.5H3"/></symbol>
+  <symbol id="i-flow" viewBox="0 0 16 16"><circle cx="3" cy="8" r="1.8"/><circle cx="13" cy="3.5" r="1.8"/><circle cx="13" cy="12.5" r="1.8"/><path d="M4.7 7.2l6.6-3M4.7 8.8l6.6 3"/></symbol>
+  <symbol id="i-target" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="3"/><path d="M8 1v2.5M8 12.5V15M1 8h2.5M12.5 8H15"/></symbol>
+  <symbol id="i-radar" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><circle cx="8" cy="8" r="2.5"/><path d="M8 8l4.5-3.5"/></symbol>
+  <symbol id="i-matrix" viewBox="0 0 16 16"><path d="M2 2h12v12H2zM2 6h12M2 10h12M6 2v12M10 2v12"/></symbol>
+  <symbol id="i-branch" viewBox="0 0 16 16"><path d="M3 14V9a3 3 0 0 1 3-3h6M9 3l3 3-3 3M3 9h0"/><path d="M3 9c0-2 1-3 3-3"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2c2 2 2 10 0 12M8 2c-2 2-2 10 0 12"/></symbol>
+  <symbol id="i-hist" viewBox="0 0 16 16"><path d="M2.5 8a5.5 5.5 0 1 0 1.6-3.9M2.5 2.5v3h3"/><path d="M8 5v3l2 1.5"/></symbol>
+  <symbol id="i-sigma" viewBox="0 0 16 16"><path d="M12 3H4l4 5-4 5h8"/></symbol>
+  <symbol id="i-docs" viewBox="0 0 16 16"><path d="M4 2h6l3 3v9H4z"/><path d="M10 2v3h3M6 8h5M6 11h5"/></symbol>
+  <symbol id="i-warn" viewBox="0 0 16 16"><path d="M8 2l6.5 11.5h-13z"/><path d="M8 6.5v3M8 11.5h.01"/></symbol>
+  <symbol id="i-q" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6"/><path d="M6.3 6.3a1.8 1.8 0 1 1 2.5 1.6c-.5.3-.8.6-.8 1.2M8 11.5h.01"/></symbol>
+  <symbol id="i-db" viewBox="0 0 16 16"><ellipse cx="8" cy="3.5" rx="5" ry="1.8"/><path d="M3 3.5v9c0 1 2.2 1.8 5 1.8s5-.8 5-1.8v-9M3 8c0 1 2.2 1.8 5 1.8S13 9 13 8"/></symbol>
+</svg>
+
+<div class="top">
+  <div class="logo"><svg class="i"><use href="#i-logo"/></svg>CONTRENDIAN</div>
+  <div class="cmd"><span class="in">SECT ROT US</span><span class="go">GO</span><span class="crumb" id="crumb"></span></div>
+  <div class="stat" id="stat"></div>
+</div>
+<div class="tape" aria-label="Cross-asset quotes"><div class="run" id="tape"></div></div>
+<nav class="fk" id="fk"></nav>
+
+<main class="pad">
+  <div class="p s4" id="book"><div class="ph"><svg class="i"><use href="#i-book"/></svg><span class="code">BOOK</span><span class="t">Long / short book</span><span class="r">3M HORIZON</span></div><div class="pb" id="bookB"></div></div>
+  <div class="p s4" id="regime"><div class="ph"><svg class="i"><use href="#i-gauge"/></svg><span class="code">ECO</span><span class="t">Macro regime</span><span class="r" id="regR"></span></div><div class="pb" id="regB"></div></div>
+  <div class="p s4" id="cal"><div class="ph"><svg class="i"><use href="#i-cal"/></svg><span class="code">EVTS</span><span class="t">Catalysts &amp; key levels</span><span class="r">NEXT 30D</span></div><div class="pb" id="calB"></div></div>
+
+  <div class="p s12" id="mon"><div class="ph"><svg class="i"><use href="#i-table"/></svg><span class="code">SECT</span><span class="t">Sector monitor · SPDR select sector ETFs</span><span class="r" id="monR"></span></div><div class="pb flush scroll"><table id="monT"></table></div></div>
+
+  <div class="p s7" id="scores"><div class="ph"><svg class="i"><use href="#i-grid"/></svg><span class="code">SCOR</span><span class="t">Three-layer scores · cross-sectional z</span><span class="r">CLICK ROW → DES</span></div>
+    <div class="pb"><div class="scroll"><table class="heat" id="heat"></table></div>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;margin-top:8px;align-items:start">
+        <div><div class="sl"><label for="wM">MACRO</label><input id="wM" type="range" min="0" max="100" value="40"><output id="oM"></output></div>
+          <div class="sl"><label for="wF">FUNDAMENTAL</label><input id="wF" type="range" min="0" max="100" value="30"><output id="oF"></output></div>
+          <div class="sl"><label for="wT">TECHNICAL</label><input id="wT" type="range" min="0" max="100" value="30"><output id="oT"></output></div></div>
+        <button id="wReset">Reset 40/30/30</button></div>
+      <div class="msg" id="wNote"></div></div></div>
+  <div class="p s5" id="des"><div class="ph"><svg class="i"><use href="#i-info"/></svg><span class="code">DES</span><span class="t" id="desT"></span><span class="r" id="desR"></span></div><div class="pb" id="desB"></div></div>
+
+  <div class="p s12" id="calls"><div class="ph"><svg class="i"><use href="#i-list"/></svg><span class="code">THES</span><span class="t">Trade theses &amp; invalidation</span><span class="r">REVIEWED WEEKLY</span></div><div class="pb flush scroll"><table id="callT"></table></div></div>
+
+  <div class="p s8" id="macro"><div class="ph"><svg class="i"><use href="#i-wave"/></svg><span class="code">ECST</span><span class="t">Macro dashboard · point-in-time, month-end</span><span class="r">FRED</span></div><div class="pb flush"><div class="grid9" id="mults"></div></div></div>
+  <div class="p s4" id="curve"><div class="ph"><svg class="i"><use href="#i-curve"/></svg><span class="code">GC</span><span class="t">US Treasury curve</span><span class="r" id="curveR"></span></div><div class="pb"><div class="chart" id="curveC"></div><div class="lbl" style="margin-top:8px">Fed funds · 2Y · 10Y since 2019</div><div class="chart" id="ratesC"></div></div></div>
+
+  <div class="p s12" id="hist"><div class="ph"><svg class="i"><use href="#i-time"/></svg><span class="code">RGHS</span><span class="t">Regime history · growth × inflation quadrant by month</span><span class="r">2005–2026</span></div><div class="pb"><div class="strip" id="strip"></div><div class="legend" id="stripL"></div></div></div>
+
+  <div class="p s8" id="news"><div class="ph"><svg class="i"><use href="#i-news"/></svg><span class="code">TOP</span><span class="t">News &amp; policy scan · structured by the news agent</span><span class="r" id="newsR"></span></div><div class="pb" id="newsB"></div></div>
+  <div class="p s4" id="sent"><div class="ph"><svg class="i"><use href="#i-flag"/></svg><span class="code">READ</span><span class="t">Sector read-through</span><span class="r">NEWS VS MODEL</span></div><div class="pb" id="sentB"></div></div>
+
+  <div class="p s7" id="effects"><div class="ph"><svg class="i"><use href="#i-flow"/></svg><span class="code">2ND</span><span class="t">Transmission · 1st → 2nd/3rd-order effects</span></div><div class="pb flow" id="flow"></div></div>
+  <div class="p s5" id="secular"><div class="ph"><svg class="i"><use href="#i-target"/></svg><span class="code">SECY</span><span class="t">Secular (10–40y) vs cyclical (1–7y)</span></div><div class="pb"><div class="chart" id="secC"></div><div class="mut" style="margin-top:6px">Top right: core longs. Bottom right: trade, don't own. Top left: XLU, the tension between AI power demand and rates.</div></div></div>
+
+  <div class="p s7" id="alt"><div class="ph"><svg class="i"><use href="#i-radar"/></svg><span class="code">ALT</span><span class="t">Alternative data · z vs own 5y history</span><span class="r" id="altR"></span></div><div class="pb bars" id="bars"></div></div>
+  <div class="p s5" id="corr"><div class="ph"><svg class="i"><use href="#i-matrix"/></svg><span class="code">CORR</span><span class="t">1Y daily return correlation</span><span class="r">252D</span></div><div class="pb scroll"><table id="corrT" style="font-size:10.5px"></table></div></div>
+
+  <div class="p s7" id="scen"><div class="ph"><svg class="i"><use href="#i-branch"/></svg><span class="code">SCEN</span><span class="t">Scenario analysis · historical annualised excess return</span><span class="r">SET PROBABILITIES →</span></div><div class="pb flush scroll"><table class="heat" id="scenT"></table></div></div>
+  <div class="p s5"><div class="ph"><svg class="i"><use href="#i-sigma"/></svg><span class="code">PROB</span><span class="t">Scenario probabilities</span></div><div class="pb" id="scenC"></div></div>
+
+  <div class="p s6" id="global"><div class="ph"><svg class="i"><use href="#i-globe"/></svg><span class="code">WRLD</span><span class="t">Same framework · US / Global / Europe</span></div><div class="pb flush scroll"><table id="regT"></table></div></div>
+  <div class="p s6"><div class="ph"><svg class="i"><use href="#i-grid"/></svg><span class="code">RGXS</span><span class="t">Sector excess return by regime · US 2000–2026</span></div><div class="pb flush scroll"><table id="rhT"></table></div></div>
+
+  <div class="p s8" id="bt"><div class="ph"><svg class="i"><use href="#i-hist"/></svg><span class="code">BTST</span><span class="t">Backtest 2005–2026 · 3M overlapping tranches · 10bp costs</span><span class="r">LOG SCALE</span></div>
+    <div class="pb"><div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:6px" id="btL"></div><div class="chart" id="btC"></div><div class="chart" id="ddC"></div></div></div>
+  <div class="p s4"><div class="ph"><svg class="i"><use href="#i-sigma"/></svg><span class="code">PERF</span><span class="t">Performance &amp; periods</span></div><div class="pb flush scroll"><table id="statT"></table><table id="subT" style="margin-top:6px"></table><div class="msg" style="margin:8px" id="btMsg"></div></div></div>
+  <div class="p s6"><div class="ph"><svg class="i"><use href="#i-target"/></svg><span class="code">IC</span><span class="t">Signal skill · rank IC vs forward excess return</span></div><div class="pb flush scroll"><table id="icT"></table><div class="mut" style="padding:6px 8px">Every signal is individually insignificant (|t| &lt; 1.1); weights stay fixed at 40/30/30.</div></div></div>
+  <div class="p s6"><div class="ph"><svg class="i"><use href="#i-list"/></svg><span class="code">PICK</span><span class="t">Model picks · last 12 months</span></div><div class="pb flush scroll"><table id="pickT"></table></div></div>
+
+  <div class="p s4" id="docs"><div class="ph"><svg class="i"><use href="#i-docs"/></svg><span class="code">METH</span><span class="t">Methodology</span></div><div class="pb docs" id="methB"></div></div>
+  <div class="p s4"><div class="ph"><svg class="i"><use href="#i-db"/></svg><span class="code">SRC</span><span class="t">Data sources &amp; limitations</span></div><div class="pb docs" id="srcB"></div></div>
+  <div class="p s4"><div class="ph"><svg class="i"><use href="#i-q"/></svg><span class="code">QSTN</span><span class="t">Questions for discussion</span></div><div class="pb"><ol class="q" id="qs"></ol></div></div>
+</main>
+<footer id="foot"></footer>
+<div id="tip" role="status" aria-live="polite"></div>
+
+<script>const D = /*__DATA__*/null;</script>
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+const NS = "http://www.w3.org/2000/svg";
+const S = Object.fromEntries(D.sectors.map(s => [s.t, s]));
+const ORDER = D.sectors.map(s => s.t);
+const P = Object.fromEntries(D.perf.map(r => [r.t, r]));
+const sg = v => v >= 0 ? "+" : "−";
+const f2 = v => v == null ? "–" : sg(v) + Math.abs(v).toFixed(2);
+const pct = (v, d = 1) => v == null ? "–" : sg(v) + Math.abs(v * 100).toFixed(d) + "%";
+const pctU = (v, d = 1) => v == null ? "–" : (v * 100).toFixed(d) + "%";
+const arrow = v => v == null ? "" : v >= 0 ? "▲" : "▼";
+const ud = v => v == null ? "" : v >= 0 ? "up" : "dn";
+const chgTd = (v, d = 1) => `<td class="${ud(v)}">${arrow(v)} ${pct(v, d).replace(/^[+−]/, "")}</td>`;
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const icon = id => `<svg class="i"><use href="#i-${id}"/></svg>`;
+const heat = (v, vmax, txt) => { if (v == null) return `<td class="hc dim">–</td>`;
+  const a = Math.min(1, Math.abs(v) / vmax);
+  return `<td class="hc" style="background:color-mix(in srgb, var(${v >= 0 ? "--up" : "--dn"}) ${Math.round(a * 70)}%, var(--panel));color:${a > .6 ? "#fff" : "var(--ink)"}">${txt}</td>`; };
+const svg = (w, h) => { const e = document.createElementNS(NS, "svg"); e.setAttribute("viewBox", `0 0 ${w} ${h}`); e.setAttribute("width", "100%"); e.style.display = "block"; return e; };
+const el = (tag, a = {}, p) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); p && p.appendChild(e); return e; };
+const txt = (g, x, y, s, a = {}) => { const t = el("text", { x, y, ...a }, g); t.textContent = s; return t; };
+const tip = $("#tip");
+const showTip = (h, ev) => { tip.innerHTML = h; tip.classList.add("on");
+  tip.style.left = Math.min(ev.clientX + 14, innerWidth - tip.offsetWidth - 8) + "px"; tip.style.top = Math.min(ev.clientY + 14, innerHeight - tip.offsetHeight - 8) + "px"; };
+const hideTip = () => tip.classList.remove("on");
+const R = D.regime;
+
+// ------------------------------------------------ command bar, tape, keys
+$("#crumb").textContent = `· Sector rotation & long/short allocation · 11 GICS sectors · data ${D.asof}`;
+$("#stat").innerHTML = `<span><span class="dot"></span>PIPELINE <b>OK</b></span><span>REGIME <b class="am">${R.quadrant.toUpperCase()}</b></span><span>RATES <b>${R.rates === "rising" ? "▲ RISING" : "▼ FALLING"}</b></span><span>BUILT <b>${D.built}</b></span>`;
+const q = t => { const v = t.kind === "yld" ? t.last.toFixed(3) + "%" : t.kind === "fx" ? t.last.toFixed(4) : t.last >= 1000 ? t.last.toLocaleString("en-US", { maximumFractionDigits: 0 }) : t.last.toFixed(2);
+  const c = t.kind === "yld" ? `${sg(t.chg)}${Math.abs(t.chg).toFixed(1)}bp` : pct(t.chg, 2);
+  return `<span class="q"><span class="l">${t.label}</span><span class="v">${v}</span><span class="${ud(t.chg)}">${arrow(t.chg)}${c}</span></span>`; };
+const sectQ = D.perf.filter(r => r.t !== "SPY").map(r => ({ label: r.t, last: r.last, chg: r.d1, kind: "px" }));
+const tapeHTML = [...D.tape, ...sectQ].map(q).join("");
+$("#tape").innerHTML = tapeHTML + tapeHTML;
+const KEYS = [["book", "BOOK"], ["mon", "SECT"], ["scores", "SCOR"], ["calls", "THES"], ["macro", "ECO"], ["hist", "RGHS"], ["news", "NEWS"],
+  ["effects", "2ND"], ["alt", "ALT"], ["scen", "SCEN"], ["global", "WRLD"], ["bt", "BTST"], ["docs", "DOCS"]];
+$("#fk").innerHTML = KEYS.map(([id, n], i) => `<a href="#${id}"><span>F${i + 1}</span>${n}</a>`).join("");
+
+// ------------------------------------------------ book
+const longs = D.sectors.filter(s => s.call === "LONG").sort((a, b) => b.comp - a.comp);
+const shorts = D.sectors.filter(s => s.call === "SHORT").sort((a, b) => a.comp - b.comp);
+const zb = v => { const w = Math.min(1, Math.abs(v) / 2.5) * 50; return `<div class="zbar"><i style="${v >= 0 ? "left:50%" : `left:${50 - w}%`};width:${w}%;background:var(${v >= 0 ? "--up" : "--dn"})"></i></div>`; };
+const legRow = s => `<div class="row3"><span class="tk">${s.t}</span><span class="mut" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(s.name)}</span>${zb(s.comp)}<span class="${ud(s.comp)}" style="text-align:right">${f2(s.comp)}</span></div>`;
+const conv = s => (D.notes[s.t]?.conviction || "").replace(", half size", " · ½");
+$("#bookB").innerHTML = `<div class="legs">
+  <div class="leg"><div class="hd"><span class="up">▲ LONG</span><span class="dim">COMPOSITE Z</span></div>${longs.map(legRow).join("")}</div>
+  <div class="leg"><div class="hd"><span class="dn">▼ SHORT</span><span class="dim">COMPOSITE Z</span></div>${shorts.map(legRow).join("")}</div></div>
+  <div class="kv" style="margin-top:8px">${[...longs, ...shorts].map(s => `<div><span class="tk">${s.t}</span> conviction</div><div>${esc(conv(s))}</div>`).join("")}</div>`;
+
+// ------------------------------------------------ regime
+$("#regR").textContent = `${R.quadrant.toUpperCase()} · ${R.rates.toUpperCase()}`;
+const regRows = [["Growth momentum z", f2(R.growth_score), ud(R.growth_score)], ["Inflation momentum z", f2(R.inflation_score), ud(-R.inflation_score)],
+  ["Fed funds", R.fedfunds.toFixed(2) + "%", ""], ["UST 2Y / 10Y", R.dgs2.toFixed(2) + " / " + R.dgs10.toFixed(2) + "%", ""], ["10Y–2Y curve", f2(R.curve) + "pp", ""],
+  ["CPI / PPI y/y", R.cpi_yoy.toFixed(1) + " / " + R.ppi_yoy.toFixed(1) + "%", "dn"], ["Unemployment", R.unrate.toFixed(1) + "%", ""], ["UMich sentiment", R.sentiment.toFixed(1), "dn"], ["WTI", "$" + R.wti.toFixed(2), ""]];
+$("#regB").innerHTML = `<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;align-items:start"><div id="quad"></div>
+  <div class="kv">${regRows.map(([k, v, c]) => `<div>${k}</div><div class="${c}">${v}</div>`).join("")}</div></div>
+  <div style="margin-top:6px" id="clockChips"></div>`;
+(function quad() {
+  const W = 220, H = 190, m = 16, g = svg(W, H); $("#quad").appendChild(g);
+  const tr = D.trail, ext = Math.max(1.1, ...tr.map(p => Math.max(Math.abs(p.g), Math.abs(p.i)))) * 1.1;
+  const X = v => m + (v + ext) / (2 * ext) * (W - 2 * m), Y = v => H - m - (v + ext) / (2 * ext) * (H - 2 * m);
+  [["RECOVERY", 1, -1], ["OVERHEAT", 1, 1], ["STAGFLATION", -1, 1], ["SLOWDOWN", -1, -1]].forEach(([n, sx, sy]) => {
+    const on = n === R.quadrant.toUpperCase();
+    el("rect", { x: sx > 0 ? X(0) : m, y: sy > 0 ? m : Y(0), width: (W - 2 * m) / 2, height: (H - 2 * m) / 2, fill: on ? "var(--sel)" : "var(--zebra)", stroke: "var(--line)" }, g);
+    const t = txt(g, sx > 0 ? W - m - 3 : m + 3, sy > 0 ? m + 10 : H - m - 4, n, { "text-anchor": sx > 0 ? "end" : "start" }); if (on) { t.style.fill = "var(--amber)"; t.style.fontWeight = 600; } });
+  txt(g, W / 2, H - 3, "GROWTH →", { "text-anchor": "middle" }); txt(g, 8, H / 2, "INFL →", { "text-anchor": "middle", transform: `rotate(-90 8 ${H / 2})` });
+  el("path", { d: tr.map((p, i) => `${i ? "L" : "M"}${X(p.g)},${Y(p.i)}`).join(""), fill: "none", stroke: "var(--ink3)", "stroke-dasharray": "2 2" }, g);
+  tr.forEach((p, i) => { const last = i === tr.length - 1;
+    el("circle", { cx: X(p.g), cy: Y(p.i), r: last ? 4.5 : 2.5, fill: last ? "var(--dn)" : "var(--ink3)", "fill-opacity": last ? 1 : .3 + .7 * i / tr.length }, g);
+    const h = el("circle", { cx: X(p.g), cy: Y(p.i), r: 9, fill: "transparent" }, g);
+    h.addEventListener("pointermove", ev => showTip(`${p.d} · ${p.q}<br>growth ${f2(p.g)} · inflation ${f2(p.i)}`, ev)); h.addEventListener("pointerleave", hideTip); });
+})();
+const cm = D.clock[R.quadrant] || {}, rm = D.rates_map[R.rates] || {};
+const chipL = (o, s) => Object.entries(o).filter(([, v]) => s > 0 ? v > 0 : v < 0).map(([t]) => `<span class="${s > 0 ? "up" : "dn"}">${s > 0 ? "▲" : "▼"}${t}</span>`).join(" ");
+$("#clockChips").innerHTML = `<div class="lbl">Investment clock · ${R.quadrant}</div><div>${chipL(cm, 1)} ${chipL(cm, -1)}</div><div class="lbl" style="margin-top:4px">Rate map · ${R.rates}</div><div>${chipL(rm, 1)} ${chipL(rm, -1)}</div>`;
+
+// ------------------------------------------------ catalysts
+const lvl = [["XLE stop", "WTI < $80 or XLE/SPY < 200D"], ["Rate re-test", "UST 10Y < 4.75% (now " + R.dgs10.toFixed(2) + "%)"], ["XLK cap", "RSI(14) > 75 (now " + S.XLK.rsi.toFixed(0) + ")"], ["XLU swap", "Utilities short → Materials if AI-load signals persist"]];
+$("#calB").innerHTML = D.events.map(e => `<div class="cal"><span class="d">${e.date.slice(5)}</span><span>${esc(e.what)}<br><span class="dim">${esc(e.src)}</span></span><span class="tk" style="text-align:right">${e.sector}</span></div>`).join("") +
+  `<div class="lbl" style="margin-top:8px">Triggers</div>` + lvl.map(([k, v]) => `<div class="cal" style="grid-template-columns:5.4rem minmax(0,1fr)"><span class="am">${k}</span><span class="mut">${esc(v)}</span></div>`).join("");
+
+// ------------------------------------------------ sector monitor
+$("#monR").textContent = `LAST ${D.tape[0]?.date || D.asof} · VOL/BETA 252D`;
+function sparkInline(vals, c) { const W = 90, H = 20, lo = Math.min(...vals), hi = Math.max(...vals);
+  const d = vals.map((v, i) => `${i ? "L" : "M"}${(i / (vals.length - 1) * W).toFixed(1)},${(H - 2 - (v - lo) / ((hi - lo) || 1) * (H - 4)).toFixed(1)}`).join("");
+  return `<svg viewBox="0 0 ${W} ${H}" width="90" height="20" style="display:block"><path d="${d}" fill="none" stroke="${c}" stroke-width="1.3"/></svg>`; }
+$("#monT").innerHTML = `<thead><tr><th>Ticker</th><th class="l">Sector</th><th>Last</th><th>1D</th><th>1W</th><th>1M</th><th>3M</th><th>YTD</th><th>1Y</th><th class="l">52W range</th><th>Vol</th><th>Beta</th><th class="l">6M</th><th>Score</th><th>Call</th></tr></thead><tbody>` +
+  D.perf.map(r => { const s = S[r.t], pos = (r.last - r.lo) / ((r.hi - r.lo) || 1);
+    return `<tr><td class="l tk">${r.t}</td><td class="l mut">${esc(r.name)}</td><td>${r.last.toFixed(2)}</td>${chgTd(r.d1, 2)}${chgTd(r.w1)}${chgTd(r.m1)}${chgTd(r.m3)}${chgTd(r.ytd)}${chgTd(r.y1)}
+    <td class="l"><div class="rng" title="52W ${r.lo.toFixed(2)} – ${r.hi.toFixed(2)}"><i style="left:${(pos * 100).toFixed(0)}%"></i></div></td>
+    <td>${pctU(r.vol, 0)}</td><td>${r.beta.toFixed(2)}</td><td class="l">${sparkInline(r.spark, r.spark[r.spark.length - 1] >= r.spark[0] ? "var(--up)" : "var(--dn)")}</td>
+    <td class="${s ? ud(s.comp) : ""}">${s ? f2(s.comp) : ""}</td><td>${s && s.call ? `<span class="call ${s.call}">${s.call}</span>` : ""}</td></tr>`; }).join("") + "</tbody>";
+
+// ------------------------------------------------ scores + DES
+const zs = a => { const m = a.reduce((x, y) => x + y, 0) / a.length, sd = Math.sqrt(a.reduce((x, y) => x + (y - m) ** 2, 0) / (a.length - 1)); return a.map(v => Math.max(-3, Math.min(3, (v - m) / sd))); };
+let sel = longs[0].t;
+function recompute() {
+  const w = ["wM", "wF", "wT"].map(id => +$("#" + id).value), tot = w.reduce((a, b) => a + b, 0) || 1;
+  ["oM", "oF", "oT"].forEach((id, i) => $("#" + id).value = Math.round(w[i] / tot * 100) + "%");
+  const raw = ORDER.map(t => (S[t].macro * w[0] + S[t].fund * w[1] + S[t].tech * w[2]) / tot), zz = zs(raw);
+  const comp = Object.fromEntries(ORDER.map((t, i) => [t, zz[i]])), rk = [...ORDER].sort((a, b) => comp[b] - comp[a]);
+  const [lo, hi] = D.rsi_limits, L = rk.filter(t => !(S[t].rsi > hi)).slice(0, 3), Sh = [...rk].reverse().filter(t => !(S[t].rsi < lo) && !L.includes(t)).slice(0, 3);
+  const call = t => L.includes(t) ? "LONG" : Sh.includes(t) ? "SHORT" : "";
+  $("#heat").innerHTML = `<thead><tr><th>#</th><th class="l">Sector</th><th>Macro</th><th>Fund</th><th>Tech</th><th>Composite</th><th>Alt</th><th>RSI</th><th>12-1M</th><th class="l">Call</th></tr></thead><tbody>` +
+    rk.map((t, i) => { const s = S[t], c = call(t), ch = c !== s.call;
+      return `<tr data-t="${t}" class="${t === sel ? "sel" : ""}" tabindex="0"><td class="dim">${i + 1}</td><td class="l"><span class="tk">${t}</span> <span class="mut">${esc(s.name)}</span></td>
+      ${heat(s.macro, 2.5, f2(s.macro))}${heat(s.fund, 2.5, f2(s.fund))}${heat(s.tech, 2.5, f2(s.tech))}${heat(comp[t], 2.5, f2(comp[t]))}
+      <td class="${ud(s.alt)}">${s.alt == null ? "–" : f2(s.alt)}</td><td style="${s.rsi > hi || s.rsi < lo ? "color:var(--flag);font-weight:600" : ""}">${s.rsi.toFixed(0)}</td><td class="${ud(s.mom)}">${pct(s.mom, 0)}</td>
+      <td class="l">${c ? `<span class="call ${c}">${c}</span>` : ""}${ch ? `<span class="chg">${s.call ? "WAS " + s.call : "NEW"}</span>` : ""}</td></tr>`; }).join("") + "</tbody>";
+  const diff = ORDER.filter(t => call(t) !== S[t].call);
+  $("#wNote").textContent = diff.length ? `At these weights the book changes for ${diff.join(", ")} versus the 40/30/30 model call.` : "Book matches the 40/30/30 model call. RSI(14) above 75 blocks a new long; below 25 blocks a new short.";
+  document.querySelectorAll("#heat tr[data-t]").forEach(r => { const go = () => { sel = r.dataset.t; recompute(); };
+    r.addEventListener("click", go); r.addEventListener("keydown", e => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), go())); });
+  des(sel);
+}
+function des(t) {
+  const s = S[t], fd = s.fund_detail, p = P[t], h = D.holdings[t] || [];
+  $("#desT").textContent = `${t} US Equity · ${s.name}`; $("#desR").innerHTML = s.call ? `<span class="call ${s.call}">${s.call}</span>` : "NO POSITION";
+  const kv = [["P/E ttm", fd["P/E (ttm)"].toFixed(1) + "x"], ["P/E fwd", fd["P/E (fwd)"].toFixed(1) + "x"], ["P/B", fd["P/B"].toFixed(2) + "x"], ["D/E", fd["D/E (%)"].toFixed(0) + "%"],
+    ["ROE", pctU(fd.ROE, 1)], ["Div yield", fd["Div. yield (%)"].toFixed(2) + "%"], ["FCF yield", pct(fd["FCF yield"])], ["Rev y/y", pct(fd["Rev. growth YoY"])],
+    ["EPS y/y", pct(fd["EPS growth YoY"], 0)], ["Gross mgn", pctU(fd["Gross margin"], 1)], ["Op mgn", pctU(fd["Op. margin"], 1)], ["Net mgn", pctU(fd["Net margin"], 1)],
+    ["Vol 1Y", pctU(p.vol, 1)], ["Beta 1Y", p.beta.toFixed(2)], ["Val vs 10Y", f2(s.valhist)], ["Secular", f2(s.secular)]];
+  $("#desB").innerHTML = `<div style="display:flex;gap:14px;align-items:baseline;flex-wrap:wrap"><span class="big">${p.last.toFixed(2)}</span><span class="${ud(p.d1)}">${arrow(p.d1)} ${pct(p.d1, 2)} 1D</span><span class="${ud(p.ytd)}">${pct(p.ytd)} YTD</span><span class="mut">52W ${p.lo.toFixed(2)}–${p.hi.toFixed(2)}</span></div>
+    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px 10px;margin-top:8px">${kv.map(([k, v]) => `<div><div class="lbl">${k}</div><div>${v}</div></div>`).join("")}</div>
+    <div class="lbl" style="margin-top:8px">Relative strength vs SPY · 12M</div><div id="relC"></div>
+    <div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;margin-top:6px">
+      <div><div class="lbl">Top holdings</div>${h.map(([tk, n, w]) => `<div style="display:flex;justify-content:space-between;gap:6px"><span><span class="tk">${tk}</span> <span class="dim">${esc(n.slice(0, 16))}</span></span><span>${(w * 100).toFixed(1)}%</span></div>`).join("")}</div>
+      <div><div class="lbl">Secular view</div><div class="mut">${esc(s.secular_why)}</div><div class="lbl" style="margin-top:6px">Thesis</div><div class="mut">${esc(D.notes[t]?.thesis || "Not in the book this week.")}</div></div></div>`;
+  line($("#relC"), D.rel[t].map(p => p[1]), D.rel[t].map(p => p[0]), { h: 70, base: 100, color: s.call === "SHORT" ? "var(--dn)" : "var(--up)", fmt: v => v.toFixed(1) });
+}
+["wM", "wF", "wT"].forEach(id => $("#" + id).addEventListener("input", recompute));
+$("#wReset").addEventListener("click", () => { $("#wM").value = 40; $("#wF").value = 30; $("#wT").value = 30; recompute(); });
+
+// generic line with hover
+function line(host, vals, labels, o = {}) {
+  host.innerHTML = ""; const W = o.w || 360, H = o.h || 80, pad = { l: 2, r: 40, t: 6, b: 12 }, g = svg(W, H); host.appendChild(g);
+  let lo = Math.min(...vals), hi = Math.max(...vals); if (o.base != null) { lo = Math.min(lo, o.base); hi = Math.max(hi, o.base); }
+  const sp = (hi - lo) || 1; lo -= sp * .08; hi += sp * .08;
+  const X = i => pad.l + i / (vals.length - 1) * (W - pad.l - pad.r), Y = v => pad.t + (1 - (v - lo) / (hi - lo)) * (H - pad.t - pad.b);
+  if (o.base != null) el("line", { x1: pad.l, x2: W - pad.r, y1: Y(o.base), y2: Y(o.base), stroke: "var(--line2)" }, g);
+  const d = vals.map((v, i) => `${i ? "L" : "M"}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join("");
+  el("path", { d: d + `L${X(vals.length - 1)},${H - pad.b}L${X(0)},${H - pad.b}Z`, fill: o.color, "fill-opacity": .1 }, g);
+  el("path", { d, fill: "none", stroke: o.color, "stroke-width": 1.4 }, g);
+  const ly = Y(vals[vals.length - 1]); el("circle", { cx: X(vals.length - 1), cy: ly, r: 2.6, fill: o.color }, g);
+  const lt = txt(g, X(vals.length - 1) + 5, ly + 3, o.fmt(vals[vals.length - 1])); lt.style.fill = "var(--ink)";
+  txt(g, pad.l, H - 1, labels[0]); txt(g, W - pad.r, H - 1, labels[labels.length - 1], { "text-anchor": "end" });
+  const cr = el("line", { y1: pad.t, y2: H - pad.b, stroke: "var(--amber)", opacity: 0 }, g), hit = el("rect", { width: W, height: H, fill: "transparent" }, g);
+  hit.addEventListener("pointermove", ev => { const r = g.getBoundingClientRect(), fx = (ev.clientX - r.left) / r.width * W;
+    const i = Math.max(0, Math.min(vals.length - 1, Math.round((fx - pad.l) / (W - pad.l - pad.r) * (vals.length - 1))));
+    cr.setAttribute("x1", X(i)); cr.setAttribute("x2", X(i)); cr.setAttribute("opacity", .6); showTip(`${labels[i]}<br><b>${o.fmt(vals[i])}</b>`, ev); });
+  hit.addEventListener("pointerleave", () => { cr.setAttribute("opacity", 0); hideTip(); });
+}
+
+// ------------------------------------------------ theses
+$("#callT").innerHTML = `<thead><tr><th class="l">Call</th><th class="l">Ticker</th><th>Score</th><th class="l">Conviction</th><th class="l">Thesis</th><th class="l">Invalidation</th></tr></thead><tbody>` +
+  [...longs, ...shorts].map(s => { const n = D.notes[s.t] || {}; return `<tr><td class="l"><span class="call ${s.call}">${s.call}</span></td><td class="l"><span class="tk">${s.t}</span> <span class="mut">${esc(s.name)}</span></td>
+  <td class="${ud(s.comp)}">${f2(s.comp)}</td><td class="l am">${esc(n.conviction)}</td><td class="wrap">${esc(n.thesis)}</td><td class="wrap mut">${esc(n.wrong_if)}</td></tr>`; }).join("") + "</tbody>";
+
+// ------------------------------------------------ macro minis, curve, rates
+D.macro.forEach(m => { const d = document.createElement("div"); d.className = "mini";
+  const vals = m.points.map(p => p[1]), last = vals[vals.length - 1], prev = vals[vals.length - 13] ?? vals[0];
+  const fmt = v => m.unit === "$" ? "$" + v.toFixed(1) : v.toFixed(2) + (m.unit === "%" ? "%" : m.unit === "pp" ? "pp" : "");
+  d.innerHTML = `<div class="h"><span class="am">${esc(m.label.toUpperCase())}</span><span>${fmt(last)} <span class="${ud(last - prev)}">${arrow(last - prev)}${Math.abs(last - prev).toFixed(2)}</span></span></div><div></div>`;
+  $("#mults").appendChild(d); line(d.lastElementChild, vals, m.points.map(p => p[0]), { h: 70, color: "var(--c1)", fmt }); });
+(function curve() {
+  const C = D.curve; if (!C) { $("#curveC").innerHTML = `<div class="mut">Curve data unavailable this run.</div>`; return; }
+  $("#curveR").textContent = "AS OF " + C.asof;
+  const W = 360, H = 170, m = { l: 30, r: 8, t: 8, b: 18 }, g = svg(W, H); $("#curveC").appendChild(g);
+  const all = [...C.now, ...C.m1, ...C.y1], lo = Math.floor(Math.min(...all) * 2) / 2 - .25, hi = Math.ceil(Math.max(...all) * 2) / 2;
+  const n = C.tenors.length, X = i => m.l + i / (n - 1) * (W - m.l - m.r), Y = v => m.t + (1 - (v - lo) / (hi - lo)) * (H - m.t - m.b);
+  for (let v = Math.ceil(lo * 2) / 2; v <= hi; v += .5) { el("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: "var(--grid)" }, g); txt(g, m.l - 4, Y(v) + 3, v.toFixed(1), { "text-anchor": "end" }); }
+  C.tenors.forEach((t, i) => txt(g, X(i), H - 4, t, { "text-anchor": "middle" }));
+  [["y1", "1Y AGO", "var(--c4)"], ["m1", "1M AGO", "var(--c1)"], ["now", "NOW", "var(--c2)"]].forEach(([k, lab, c], j) => {
+    el("path", { d: C[k].map((v, i) => `${i ? "L" : "M"}${X(i)},${Y(v)}`).join(""), fill: "none", stroke: c, "stroke-width": k === "now" ? 2 : 1.3, "stroke-dasharray": k === "y1" ? "3 3" : "" }, g);
+    C[k].forEach((v, i) => { if (k === "now") el("circle", { cx: X(i), cy: Y(v), r: 2.4, fill: c }, g); });
+    const t = txt(g, m.l + 6 + j * 62, m.t + 9, "━ " + lab); t.style.fill = c; });
+  const hit = el("rect", { x: m.l, width: W - m.l - m.r, height: H, fill: "transparent" }, g);
+  hit.addEventListener("pointermove", ev => { const r = g.getBoundingClientRect(), fx = (ev.clientX - r.left) / r.width * W, i = Math.max(0, Math.min(n - 1, Math.round((fx - m.l) / (W - m.l - m.r) * (n - 1))));
+    showTip(`<b>${C.tenors[i]}</b> now ${C.now[i].toFixed(2)}%<br>1M ago ${C.m1[i].toFixed(2)}% (${sg(C.now[i] - C.m1[i])}${Math.abs((C.now[i] - C.m1[i]) * 100).toFixed(0)}bp)<br>1Y ago ${C.y1[i].toFixed(2)}% (${sg(C.now[i] - C.y1[i])}${Math.abs((C.now[i] - C.y1[i]) * 100).toFixed(0)}bp)`, ev); });
+  hit.addEventListener("pointerleave", hideTip);
+})();
+(function rates() {
+  const H_ = D.rates_hist, W = 360, H = 110, m = { l: 24, r: 8, t: 6, b: 14 }, g = svg(W, H); $("#ratesC").appendChild(g);
+  const all = [...H_.ff, ...H_.y10, ...H_.y2], lo = 0, hi = Math.ceil(Math.max(...all)), n = H_.dates.length;
+  const X = i => m.l + i / (n - 1) * (W - m.l - m.r), Y = v => m.t + (1 - (v - lo) / (hi - lo)) * (H - m.t - m.b);
+  for (let v = 0; v <= hi; v += 2) { el("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: "var(--grid)" }, g); txt(g, m.l - 4, Y(v) + 3, v, { "text-anchor": "end" }); }
+  H_.dates.forEach((d, i) => { if (d.endsWith("-01") && +d.slice(0, 4) % 2 === 1) txt(g, X(i), H - 2, d.slice(0, 4), { "text-anchor": "middle" }); });
+  const ser = [["ff", "FF", "var(--c2)"], ["y2", "2Y", "var(--c1)"], ["y10", "10Y", "var(--c3)"]];
+  ser.forEach(([k, l, c]) => el("path", { d: H_[k].map((v, i) => `${i ? "L" : "M"}${X(i)},${Y(v)}`).join(""), fill: "none", stroke: c, "stroke-width": 1.4 }, g));
+  ser.forEach(([k, l, c], j) => { const t = txt(g, m.l + 6 + j * 40, m.t + 8, "━ " + l); t.style.fill = c; });
+  const cr = el("line", { y1: m.t, y2: H - m.b, stroke: "var(--amber)", opacity: 0 }, g), hit = el("rect", { x: m.l, width: W - m.l - m.r, height: H, fill: "transparent" }, g);
+  hit.addEventListener("pointermove", ev => { const r = g.getBoundingClientRect(), fx = (ev.clientX - r.left) / r.width * W, i = Math.max(0, Math.min(n - 1, Math.round((fx - m.l) / (W - m.l - m.r) * (n - 1))));
+    cr.setAttribute("x1", X(i)); cr.setAttribute("x2", X(i)); cr.setAttribute("opacity", .6);
+    showTip(`<b>${H_.dates[i]}</b><br>Fed funds ${H_.ff[i].toFixed(2)}%<br>2Y ${H_.y2[i].toFixed(2)}% · 10Y ${H_.y10[i].toFixed(2)}%`, ev); });
+  hit.addEventListener("pointerleave", () => { cr.setAttribute("opacity", 0); hideTip(); });
+})();
+
+// ------------------------------------------------ regime history strip
+const QC = { Recovery: "var(--c3)", Overheat: "var(--c2)", Stagflation: "var(--dn)", Slowdown: "var(--c1)" };
+const byYear = {}; D.regime_hist.forEach(([d, q, r]) => { (byYear[d.slice(0, 4)] ||= {})[+d.slice(5, 7)] = [q, r, d]; });
+const counts = {}; D.regime_hist.forEach(([, q]) => counts[q] = (counts[q] || 0) + 1);
+$("#strip").innerHTML = `<div class="yr"><b></b>${"JFMAMJJASOND".split("").map(c => `<b style="text-align:center">${c}</b>`).join("")}</div>` +
+  Object.keys(byYear).map(y => `<div class="yr"><b>${y}</b>${Array.from({ length: 12 }, (_, i) => { const v = byYear[y][i + 1];
+    return v ? `<span data-tip="${v[2]} · ${v[0]} · rates ${v[1]}" style="background:${QC[v[0]]};opacity:${v[1] === "rising" ? 1 : .55}"></span>` : `<span style="background:var(--mid)"></span>`; }).join("")}</div>`).join("");
+$("#stripL").innerHTML = Object.entries(QC).map(([q, c]) => `<span><i style="background:${c}"></i>${q.toUpperCase()} <span class="dim">${counts[q] || 0}M</span></span>`).join("") + `<span class="dim">Solid = rates rising · faded = rates falling. Hover a month for detail.</span>`;
+document.querySelectorAll("#strip span[data-tip]").forEach(s => { s.addEventListener("pointermove", ev => showTip(s.dataset.tip, ev)); s.addEventListener("pointerleave", hideTip); });
+
+// ------------------------------------------------ news
+const N = D.news, CAT = { "monetary policy": "MON", inflation: "INFL", "energy/commodities": "CMDTY", geopolitical: "GEO", regulatory: "REG", "fiscal/trade": "FISC", other: "THEME" };
+if (N) {
+  $("#newsR").textContent = `STANCE: ${N.policy_stance.toUpperCase()} · ${D.news_sources.length} SOURCES`;
+  $("#newsB").innerHTML = `<div class="msg" style="margin:0 0 6px"><span class="dn" style="font-weight:600">${N.policy_stance.toUpperCase()}</span> ${esc(N.policy_summary)}</div><div class="news">` +
+    N.shocks.map(s => `<div class="ni"><span class="tag">${CAT[s.category] || "NEWS"}</span><div><div class="hl">${esc(s.event)}</div>
+      <div class="fx"><div><b>1ST</b> ${esc(s.first_order)}</div><div><b>2ND</b> ${esc(s.second_order)}</div></div></div></div>`).join("") +
+    `</div><details style="margin-top:6px"><summary class="mut" style="cursor:pointer">Sources (${D.news_sources.length})</summary><ol style="margin:6px 0 0;padding-left:20px;color:var(--ink3);columns:2 300px">${D.news_sources.map(u => `<li><a href="${esc(u)}" target="_blank" rel="noopener">${esc(u.replace(/^https?:\/\/(www\.)?/, "").slice(0, 60))}</a></li>`).join("")}</ol></details>`;
+  const SM = { positive: ["▲", "up"], negative: ["▼", "dn"], neutral: ["■", "mut"] };
+  $("#sentB").innerHTML = N.sector_views.map(v => `<div class="sent"><span class="tk">${v.ticker}</span><span class="${SM[v.sentiment][1]}">${SM[v.sentiment][0]}</span><span class="mut">${esc(v.reason)}</span></div>`).join("") +
+    `<div class="lbl" style="margin-top:8px">Conflicts with model</div>` + N.flags_vs_model.map(f => `<div class="flag">${icon("warn")}<span>${esc(f)}</span></div>`).join("");
+}
+
+// ------------------------------------------------ flow + secular
+const FLOW = [["IRAN WAR · HORMUZ · WTI $93–96", [[1, "Energy XLE"], [-1, "Airlines, transports XLI"]], [[-1, "Gasoline $4.35 drains wallets → XLY"], [-1, "Diesel, feedstock costs → chemicals XLB"], [1, "Defence names in XLI"]]],
+  ["FED HIKES · 10Y 5.3% · BOND SELLOFF", [[-1, "Utilities XLU"], [-1, "Real Estate XLRE"], [1, "Bank NIM XLF"]], [[-1, "Mortgage 7.4% → housing freeze → XLY XLB XLRE"], [-1, "Deposit costs, card delinquencies → XLF"]]],
+  ["AI CAPEX · $600BN+ HYPERSCALERS", [[1, "Semis, hardware XLK"], [1, "Power demand XLU"]], [[1, "Grid, copper, gas turbines → XLI XLB XLE"], [-1, "Utility capex at 5%+ yields → negative FCF"]]]];
+const eff = ([s, t]) => `<div><span class="${s > 0 ? "up" : "dn"}">${s > 0 ? "▲" : "▼"}</span> ${esc(t)}</div>`;
+$("#flow").innerHTML = FLOW.map(([a, b, c]) => `<div class="fr"><div class="nd src">${icon("warn")} ${esc(a)}</div><div class="ar">►</div><div class="nd">${b.map(eff).join("")}</div><div class="ar">►</div><div class="nd">${c.map(eff).join("")}</div></div>`).join("");
+(function sec() {
+  const W = 420, H = 260, m = { l: 30, r: 12, t: 10, b: 26 }, g = svg(W, H); $("#secC").appendChild(g);
+  const X = v => m.l + (v + 2.6) / 5.2 * (W - m.l - m.r), Y = v => m.t + (1 - (v + 1.6) / 4) * (H - m.t - m.b);
+  [[0, 2.4, "CORE LONGS", "end", 1], [0, -1.6, "TRADE ONLY", "end", 1], [0, 2.4, "WATCHLIST", "start", -1], [0, -1.6, "CORE SHORTS", "start", -1]].forEach(([, y, s, a, sx]) =>
+    txt(g, sx > 0 ? W - m.r - 4 : m.l + 4, y > 0 ? m.t + 10 : H - m.b - 4, s, { "text-anchor": a }).style.fill = "var(--amber-d)");
+  for (let v = -2; v <= 2; v++) { el("line", { x1: X(v), x2: X(v), y1: m.t, y2: H - m.b, stroke: v ? "var(--grid)" : "var(--line2)" }, g); txt(g, X(v), H - m.b + 12, v, { "text-anchor": "middle" }); }
+  for (let v = -1; v <= 2; v++) { el("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: v ? "var(--grid)" : "var(--line2)" }, g); txt(g, m.l - 5, Y(v) + 3, v, { "text-anchor": "end" }); }
+  txt(g, (W + m.l) / 2, H - 2, "CYCLICAL (MODEL COMPOSITE) →", { "text-anchor": "middle" });
+  const off = { XLI: [7, 12], XLU: [-7, -6, "end"], XLF: [5, -7], XLB: [5, 12] };
+  D.sectors.forEach(s => { const c = s.call === "LONG" ? "var(--up)" : s.call === "SHORT" ? "var(--dn)" : "var(--c4)";
+    el("rect", { x: X(s.comp) - 4, y: Y(s.secular) - 4, width: 8, height: 8, fill: c }, g);
+    const o = off[s.t] || [7, -6]; txt(g, X(s.comp) + o[0], Y(s.secular) + o[1], s.t, { "text-anchor": o[2] || "start" }).style.fill = "var(--ink)";
+    const h = el("circle", { cx: X(s.comp), cy: Y(s.secular), r: 12, fill: "transparent" }, g);
+    h.addEventListener("pointermove", ev => showTip(`<b>${s.t}</b> ${esc(s.name)}${s.call ? " · " + s.call : ""}<br>cyclical ${f2(s.comp)} · secular ${f2(s.secular)}<br>${esc(s.secular_why)}`, ev)); h.addEventListener("pointerleave", hideTip); });
+})();
+
+// ------------------------------------------------ alt + corr
+$("#altR").textContent = `${D.alt_count} INDICATORS · FRED · TSA · GOOGLE TRENDS`;
+const bar = (n, sub, v, vmax, t) => { const w = Math.min(1, Math.abs(v) / vmax) * 50;
+  return `<div class="bar" data-tip="${esc(t || "")}"><div class="n">${esc(n)}<small>${sub}</small></div><div class="trk"><span style="${v >= 0 ? "left:50%" : `left:${50 - w}%`};width:${w}%;background:var(${v >= 0 ? "--up" : "--dn"})"></span></div><div class="v ${ud(v)}">${f2(v)}</div></div>`; };
+$("#bars").innerHTML = [...D.alt].sort((a, b) => b.sig - a.sig).map(a => bar(a.name, Object.entries(a.sectors).map(([t, w]) => (w > 0 ? "+" : "−") + t).join(" "), a.sig, 2,
+  `<b>${esc(a.name)}</b><br>${esc(a.src)} · last ${a.last}<br>${a.chg == null ? "" : esc(a.chgType) + " " + a.chg.toFixed(2) + "<br>"}z ${a.z.toFixed(2)} · ${esc(a.why)}`)).join("") +
+  `<div class="lbl" style="margin-top:8px">Average signal by sector</div>` + D.sectors.filter(s => s.alt != null).sort((a, b) => b.alt - a.alt).map(s => bar(s.t + " " + s.name, s.call, s.alt, 2)).join("");
+document.querySelectorAll(".bar[data-tip]").forEach(b => { if (!b.dataset.tip) return; b.addEventListener("pointermove", ev => showTip(b.dataset.tip, ev)); b.addEventListener("pointerleave", hideTip); });
+const CR = D.corr;
+$("#corrT").innerHTML = `<thead><tr><th></th>${CR.names.map(n => `<th class="hc">${n.replace("XL", "")}</th>`).join("")}</tr></thead><tbody>` +
+  CR.names.map((r, i) => `<tr><td class="l tk">${r}</td>${CR.vals[i].map((v, j) => i === j ? `<td class="hc dim">·</td>` :
+    `<td class="hc" title="${r}/${CR.names[j]} ${v.toFixed(2)}" style="background:color-mix(in srgb, var(--c1) ${Math.round(Math.max(0, v) * 80)}%, var(--panel));color:${v > .55 ? "#fff" : "var(--ink2)"}">${v.toFixed(1).replace("0.", ".")}</td>`).join("")}</tr>`).join("") + "</tbody>";
+
+// ------------------------------------------------ scenarios
+const SC = D.scenarios;
+$("#scenC").innerHTML = SC.names.map((n, i) => `<div class="sl" style="grid-template-columns:9rem 1fr 3rem"><label for="p${i}">${esc(n.toUpperCase())}</label><input id="p${i}" type="range" min="0" max="100" value="${Math.round(SC.probs[i] * 100)}"><output id="po${i}"></output></div>`).join("") +
+  `<button id="pReset">Reset desk view</button><div class="msg" id="scMsg"></div>` +
+  `<div style="margin-top:8px">${SC.defs.map((d, i) => `<div class="mut"><span class="am">${esc(SC.names[i])}</span> · growth ${d.growth} · inflation ${d.inflation} · rates ${d.rates}</div>`).join("")}</div>
+   <div class="mut" style="margin-top:6px">Data-fitted averages are a cross-check only; the same method had negative out-of-sample skill.</div>`;
+function scen() {
+  const raw = SC.names.map((_, i) => +$("#p" + i).value), tot = raw.reduce((a, b) => a + b, 0) || 1, pr = raw.map(v => v / tot);
+  pr.forEach((p, i) => $("#po" + i).value = Math.round(p * 100) + "%");
+  const rows = SC.rows.map(r => ({ ...r, w: r.vals.reduce((a, v, i) => a + (v || 0) * pr[i], 0) })).sort((a, b) => b.w - a.w);
+  $("#scenT").innerHTML = `<thead><tr><th class="l">Sector</th>${SC.names.map((n, i) => `<th class="hc">${esc(n.split(" ")[0])} ${Math.round(pr[i] * 100)}%</th>`).join("")}<th class="hc">Weighted</th></tr></thead><tbody>` +
+    rows.map(r => { const t = (r.sector.match(/\((\w+)\)/) || [])[1], c = S[t]?.call;
+      return `<tr><td class="l"><span class="tk">${t}</span> <span class="mut">${esc(r.sector.replace(/ \(\w+\)/, ""))}</span> ${c ? `<span class="call ${c}">${c[0]}</span>` : ""}</td>${r.vals.map(v => heat(v, .15, pct(v))).join("")}${heat(r.w, .08, pct(r.w))}</tr>`; }).join("") + "</tbody>";
+  const neg = rows.filter(r => r.w < 0).map(r => (r.sector.match(/\((\w+)\)/) || [])[1]);
+  const so = shorts.filter(s => neg.includes(s.t)).map(s => s.t), lo = longs.filter(s => !neg.includes(s.t)).map(s => s.t);
+  $("#scMsg").textContent = `Weighted view agrees with ${so.length}/3 shorts (${so.join(" ") || "none"}) and ${lo.length}/3 longs (${lo.join(" ") || "none"}).`;
+}
+SC.names.forEach((_, i) => $("#p" + i).addEventListener("input", scen));
+$("#pReset").addEventListener("click", () => { SC.probs.forEach((p, i) => $("#p" + i).value = Math.round(p * 100)); scen(); });
+
+// ------------------------------------------------ global + regime heat
+const ht = (host, H, vmax, fmt) => $(host).innerHTML = `<thead><tr><th class="l"></th>${H.cols.map(c => `<th class="hc">${esc(c.toUpperCase())}</th>`).join("")}</tr></thead><tbody>` +
+  H.rows.map((r, i) => `<tr><td class="l mut">${esc(r)}</td>${H.vals[i].map(v => heat(v, vmax, fmt(v))).join("")}</tr>`).join("") + "</tbody>";
+ht("#regT", D.regions, 2.5, f2); ht("#rhT", D.regime_heat, .15, v => pct(v));
+
+// ------------------------------------------------ backtest
+const B = D.backtest, st = D.stats;
+const SER = [["long_only", "LONG TOP 3", "--c1"], ["eq", "EQ-WT SECTORS", "--c4"], ["ls", "L/S 3V3", "--c2"], ["spy", "SPY", "--c3"]];
+const vis = { long_only: true, eq: true, ls: true, spy: false };
+const CUM = Object.fromEntries(SER.map(([k]) => { let v = 100; return [k, B[k].map(r => (v *= 1 + (r || 0)))]; }));
+$("#btL").innerHTML = SER.map(([k, n, c]) => `<button aria-pressed="${vis[k]}" data-k="${k}"><span style="color:var(${c})">━</span> ${n}</button>`).join("");
+document.querySelectorAll("#btL button").forEach(b => b.addEventListener("click", () => { vis[b.dataset.k] = !vis[b.dataset.k]; b.setAttribute("aria-pressed", vis[b.dataset.k]); drawBT(); }));
+const SHADE = [["2007-10", "2009-03"], ["2020-02", "2020-04"], ["2022-01", "2022-10"]];
+function multi(host, series, o) {
+  host.innerHTML = ""; const W = 1000, H = o.h, m = { l: 44, r: 96, t: 8, b: 18 }, g = svg(W, H); host.appendChild(g);
+  const n = B.dates.length, tf = o.log ? Math.log : v => v, tlo = tf(o.lo), thi = tf(o.hi);
+  const X = i => m.l + i / (n - 1) * (W - m.l - m.r), Y = v => m.t + (1 - (tf(v) - tlo) / (thi - tlo)) * (H - m.t - m.b);
+  SHADE.forEach(([a, b]) => { const i0 = B.dates.indexOf(a), i1 = B.dates.indexOf(b); if (i0 >= 0 && i1 >= 0) el("rect", { x: X(i0), y: m.t, width: X(i1) - X(i0), height: H - m.t - m.b, fill: "var(--mid)" }, g); });
+  o.ticks.forEach(v => { el("line", { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), stroke: v === o.zero ? "var(--line2)" : "var(--grid)" }, g); txt(g, m.l - 6, Y(v) + 3, o.tf(v), { "text-anchor": "end" }); });
+  B.dates.forEach((d, i) => { if (d.endsWith("-01") && +d.slice(0, 4) % 3 === 0) txt(g, X(i), H - 4, d.slice(0, 4), { "text-anchor": "middle" }); });
+  series.forEach(s => el("path", { d: s.v.map((v, i) => `${i ? "L" : "M"}${X(i).toFixed(1)},${Y(v).toFixed(1)}`).join(""), fill: "none", stroke: `var(${s.c})`, "stroke-width": 1.8 }, g));
+  if (o.end) { const L = series.map(s => ({ y: Y(s.v[n - 1]), s })).sort((a, b) => a.y - b.y); L.forEach((l, i) => { if (i && l.y - L[i - 1].y < 12) l.y = L[i - 1].y + 12;
+    txt(g, W - m.r + 6, l.y + 3, `${l.s.n} ${o.tf(l.s.v[n - 1])}`).style.fill = `var(${l.s.c})`; }); }
+  const cr = el("line", { y1: m.t, y2: H - m.b, stroke: "var(--amber)", opacity: 0 }, g), dots = series.map(s => el("circle", { r: 3, fill: `var(${s.c})`, opacity: 0 }, g));
+  const hit = el("rect", { x: m.l, width: W - m.l - m.r, height: H, fill: "transparent" }, g);
+  hit.addEventListener("pointermove", ev => { const r = g.getBoundingClientRect(), fx = (ev.clientX - r.left) / r.width * W, i = Math.max(0, Math.min(n - 1, Math.round((fx - m.l) / (W - m.l - m.r) * (n - 1))));
+    cr.setAttribute("x1", X(i)); cr.setAttribute("x2", X(i)); cr.setAttribute("opacity", .6);
+    series.forEach((s, j) => { dots[j].setAttribute("cx", X(i)); dots[j].setAttribute("cy", Y(s.v[i])); dots[j].setAttribute("opacity", 1); });
+    showTip(`<b>${B.dates[i]}</b><br>` + series.map(s => `<span style="color:var(${s.c})">━</span> ${s.n} ${o.tf(s.v[i])}`).join("<br>"), ev); });
+  hit.addEventListener("pointerleave", () => { cr.setAttribute("opacity", 0); dots.forEach(d => d.setAttribute("opacity", 0)); hideTip(); });
+}
+function drawBT() {
+  const ser = SER.filter(([k]) => vis[k]).map(([k, n, c]) => ({ v: CUM[k], n, c }));
+  if (!ser.length) { $("#btC").innerHTML = `<div class="mut" style="padding:20px">Select a series.</div>`; $("#ddC").innerHTML = ""; return; }
+  multi($("#btC"), ser, { h: 300, log: true, lo: 50, hi: 1000, ticks: [50, 100, 200, 400, 800], zero: 100, tf: v => v.toFixed(0), end: true });
+  multi($("#ddC"), ser.map(s => { let pk = -Infinity; return { ...s, v: s.v.map(v => (pk = Math.max(pk, v), (v / pk - 1) * 100)) }; }), { h: 120, lo: -55, hi: 2, ticks: [0, -20, -40], zero: 0, tf: v => v.toFixed(0) + "%" });
+}
+drawBT();
+const sr = (k, n) => { const s = st[k]; return `<tr><td class="l">${n}</td><td class="${ud(s["Ann. return"])}">${pct(s["Ann. return"])}</td><td>${s["Sharpe (rf=0)"].toFixed(2)}</td><td class="dn">${pct(s["Max drawdown"], 0)}</td><td>${pctU(s["Hit rate"], 0)}</td></tr>`; };
+$("#statT").innerHTML = `<thead><tr><th class="l">Strategy</th><th>Ann.</th><th>Sharpe</th><th>Max DD</th><th>Hit</th></tr></thead><tbody>${sr("L/S (3 long - 3 short)", "L/S 3v3")}${sr("Long top-3", "Long top 3")}${sr("Equal-weight sectors", "EQ-wt")}${sr("SPY", "SPY")}</tbody>`;
+$("#subT").innerHTML = `<thead><tr><th class="l">Period</th><th>L/S</th><th>Sharpe</th><th>Long vs EW</th></tr></thead><tbody>` +
+  Object.entries(D.subperiods).map(([k, v]) => `<tr><td class="l mut">${esc(k)}</td><td class="${ud(v["L/S ann. return"])}">${pct(v["L/S ann. return"])}</td><td>${f2(v["L/S Sharpe"])}</td><td class="${ud(v["Long-only excess vs EW (ann.)"])}">${pct(v["Long-only excess vs EW (ann.)"])}</td></tr>`).join("") + "</tbody>";
+$("#btMsg").textContent = `Flat over the full sample, but ${pct(D.subperiods["2022-2023 (hiking)"]["L/S ann. return"])} a year in the 2022–23 hiking cycle, the closest analogue to today. The long book cut max drawdown from ${pct(st["Equal-weight sectors"]["Max drawdown"], 0)} to ${pct(st["Long top-3"]["Max drawdown"], 0)}.`;
+$("#icT").innerHTML = `<thead><tr><th class="l">Signal</th><th>IC 1M</th><th>t 1M</th><th>IC 3M</th><th>t 3M</th><th>IC 6M</th><th>t 6M</th></tr></thead><tbody>` +
+  Object.entries(D.ic).map(([k, v]) => `<tr><td class="l mut">${esc(k)}</td>${["1m", "3m", "6m"].map(h => `<td class="${ud(v["IC " + h])}">${v["IC " + h].toFixed(3)}</td><td class="dim">${v["t-stat " + h].toFixed(2)}</td>`).join("")}</tr>`).join("") + "</tbody>";
+$("#pickT").innerHTML = `<thead><tr><th class="l">Held in</th><th class="l">Long (signal at prior month-end)</th><th class="l">Short</th></tr></thead><tbody>` +
+  B.picks.slice(-12).reverse().map(([d, l, s]) => `<tr><td class="l am">${d}</td><td class="l up">${l.replace(/,/g, " ")}</td><td class="l dn">${s.replace(/,/g, " ")}</td></tr>`).join("") + "</tbody>";
+
+// ------------------------------------------------ docs
+const blk = (h, p) => `<div><h4>${h}</h4><p>${p}</p></div>`;
+$("#methB").innerHTML = blk("Macro 40%", "Growth × inflation momentum picks the Investment Clock quadrant (Merrill Lynch, 2004), weighted ⅔; the 10Y's 3-month direction picks the rate map, ⅓. Publication lags applied.") +
+  blk("Fundamental 30%", "Value, quality and growth from the top 25 holdings per ETF, plus dividend yield against the sector's own 10-year history.") +
+  blk("Technical 30%", "12-1M relative momentum vs SPY (50%), ratio vs 200D (25%), MACD on ratio (15%), price vs 20D VWAP (10%). RSI(14) filter.") +
+  blk("Overlay & book", "Secular view, 2nd-order effects, alt data, news and scenarios may move a sector one notch, with a written reason. Top 3 long, bottom 3 short, 3-month overlapping tranches.");
+$("#srcB").innerHTML = blk("Public data", "yfinance (ETF prices, dividends, constituent fundamentals) · FRED (29 macro and alt series) · SSGA holdings · TSA · Google Trends · Fed/EIA feeds and web news.") +
+  blk("Worth buying", "I/B/E/S or FactSet revisions · point-in-time fundamentals · ALFRED vintages · EPFR flows, CFTC positioning · card-spend and freight data.") +
+  blk("Limitations", "Ceasefire unwinds the oil premium · a Fed pivot hurts both bond-proxy shorts · drug pricing and antitrust policy · XLK's top 3 holdings ≈ 40% · macro is latest-vintage, no point-in-time fundamentals, XLRE/XLC short history.");
+$("#qs").innerHTML = ["Beta-neutral or dollar-neutral? Leverage or single stocks allowed?", "Is a 3-month hold with weekly review the right cadence?", "Should the macro weight shrink when the regime is borderline, as now?",
+  "Cap-weighted or equal-weight sector ETFs, given XLK concentration?", "Budget for point-in-time fundamentals and estimate revisions?", "Region-specific regimes before allocating outside the US? Hedge FX?",
+  "Stop-loss and drawdown limits per leg?", "How to weigh long-term themes against tactical calls when they conflict, as with Utilities?"].map(q => `<li>${esc(q)}</li>`).join("");
+$("#foot").textContent = `CONTRENDIAN · PROJECT 1 · SECTOR ROTATION & LONG/SHORT ALLOCATION · DATA ${D.asof} · BUILT ${D.built} BY run_pipeline.py · RESEARCH MATERIAL, NOT INVESTMENT ADVICE`;
+
+// F-key highlight
+const links = [...document.querySelectorAll("#fk a")];
+const obs = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) links.forEach(a => a.classList.toggle("on", a.getAttribute("href") === "#" + e.target.id)); }), { rootMargin: "-30% 0px -60% 0px" });
+KEYS.forEach(([id]) => { const n = document.getElementById(id); n && obs.observe(n); });
+recompute(); scen();
+})();
+</script>
