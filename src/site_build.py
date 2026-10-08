@@ -169,6 +169,8 @@ def build_data(sig: dict) -> dict:
 
 def build_site(sig: dict) -> str:
     data = build_data(sig)
+    zh = C.ROOT / "site" / "i18n_zh.json"
+    data["zh"] = json.loads(zh.read_text()) if zh.exists() else {}
     tpl = (C.ROOT / "site" / "template.html").read_text()
     html = tpl.replace("/*__DATA__*/null", json.dumps(data, ensure_ascii=False, separators=(",", ":")))
     out = C.OUT / "site"

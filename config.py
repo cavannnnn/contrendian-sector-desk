@@ -111,6 +111,8 @@ CALL_NOTES = {
             "Gasoline below $3.50/gal or a Fed pivot; tariff refunds lift retailers"),
     "XLRE": ("High", "Bond proxy facing a 5.3% 10Y; forward P/E 31x; weakest macro and technical scores",
              "10Y back below 4.75%; Fed pivot"),
+    "XLI": ("Low, half size", "Weakest fundamentals after Utilities (forward P/E 25x, FCF yield 3.2%); fuel costs hit airlines and transports; flat momentum",
+            "Grid and defence orders re-rate the group; relative momentum turns positive; swap back to Utilities (XLU) if XLU scores lower"),
     "XLU": ("Low, half size", "Debt-funded capex (FCF yield −9.5%) at 5%+ rates; rate-sensitive",
             "AI power demand re-rates the group (generation +7% y/y); swap the short to Materials (XLB)"),
 }
